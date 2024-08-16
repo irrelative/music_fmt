@@ -8,8 +8,6 @@ from pathlib import Path
 import openai
 import json
 
-# Set your OpenAI API key here
-openai.api_key = "your-api-key-here"
 
 def split_flac_cue(folder_path):
     """Split single FLAC file with CUE into multiple tracks using flacue.py"""
@@ -135,7 +133,7 @@ def process_album(folder_path):
 
     while True:
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo-0613",
+            model="gpt-4o",
             messages=messages,
             functions=functions,
             function_call="auto"
