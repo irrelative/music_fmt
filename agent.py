@@ -292,11 +292,11 @@ def process_album(folder_path):
     messages = [
         {
             "role": "system",
-            "content": "You are an AI assistant that helps process music albums. Your task is to organize and process the music files in a given folder according to these specific rules:\n\n1. Single FLAC file + CUE file should be split into track files, using the `flacue.py` tool\n2. All FLAC files should be converted to MP3, using the `flac2mp3.sh` script\n3. MP3 metadata should be updated using `picard`\n4. All individual track files should be renamed to `{TRACK_NUMBER} - {TRACK_TITLE}.mp3` using the metadata. Track numbers should be 2 digits and have leading `0` (e.g., `01 - Song Title.mp3`)\n5. Album folder names should follow this convention: `{ALBUM_NAME} - ({ALBUM_YEAR})`. Use the rename_folder function to implement this.\n6. After processing, delete all FLAC files and other non-MP3 files (e.g., CUE, LOG, images) in the folder\n\nApply these rules in the correct order to process the album folder.",
+            "content": "You are an AI assistant that helps process music albums. Your task is to organize and process the music files in a given folder according to these specific rules:\n\n1. Single FLAC file + CUE file should be split into track files, using the `flacue.py` tool\n2. All FLAC files should be converted to MP3, using the `flac2mp3.sh` script\n3. MP3 metadata should be updated using `picard`\n4. All individual track files should be renamed to `{TRACK_NUMBER} - {TRACK_TITLE}.mp3` using the metadata. Track numbers should be 2 digits and have leading `0` (e.g., `01 - Song Title.mp3`)\n5. Album folder names should follow this convention: `{ALBUM_NAME} - ({ALBUM_YEAR})`. Use the rename_folder function to implement this.\n6. After processing, delete all FLAC files and other non-MP3 files (e.g., CUE, LOG, images) in the folder\n7. At the end of the task, list the folder contents to confirm that all operations have been completed successfully.\n\nApply these rules in the correct order to process the album folder.",
         },
         {
             "role": "user",
-            "content": f"Process the album in the folder: {folder_path}. Start by checking the folder contents and then apply the necessary operations in the correct order.",
+            "content": f"Process the album in the folder: {folder_path}. Start by checking the folder contents, then apply the necessary operations in the correct order. Finally, list the folder contents to confirm that the task has been completed successfully.",
         },
     ]
 
