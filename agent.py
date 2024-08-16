@@ -65,8 +65,9 @@ def rename_album_folder(folder_path):
     print(f"Current folder name: {folder_path.name}")
     return f"Suggested renaming for folder: {folder_path}"
 
-def get_folder_contents(folder_path):
+def get_folder_contents(path):
     """Get the contents of the folder"""
+    folder_path = Path(path)
     contents = list(folder_path.glob('*'))
     return f"Folder contents: {[str(item) for item in contents]}"
 
