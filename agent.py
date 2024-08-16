@@ -46,6 +46,7 @@ def convert_flac_to_mp3(folder_path):
 
 def rename_tracks(folder_path):
     """Rename MP3 files to the format: {TRACK_NUMBER} - {TRACK_TITLE}.mp3"""
+    folder_path = Path(folder_path)
     for mp3_file in folder_path.glob('*.mp3'):
         parts = mp3_file.stem.split(' - ', 1)
         if len(parts) == 2:
