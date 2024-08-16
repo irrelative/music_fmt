@@ -6,7 +6,9 @@ import subprocess
 import argparse
 import os
 from pathlib import Path
-import openai
+from openai import OpenAI
+
+client = OpenAI()
 import json
 
 
@@ -14,7 +16,7 @@ def split_flac_cue(folder_path):
     """Split single FLAC file with CUE into multiple tracks using flacue.py in a Docker container"""
     flac_files = list(folder_path.glob('*.flac'))
     cue_files = list(folder_path.glob('*.cue'))
-    
+
     if len(flac_files) == 1 and len(cue_files) == 1:
         docker_cmd = [
             'docker', 'run',
@@ -71,7 +73,7 @@ def get_folder_contents(folder_path):
 def process_album(folder_path):
     """Process an album folder according to the defined rules using OpenAI agent"""
     folder_path = Path(folder_path).resolve()
-    
+
     if not folder_path.is_dir():
         print(f"Error: {folder_path} is not a valid directory")
         return
@@ -151,21 +153,19 @@ def process_album(folder_path):
     ]
 
     while True:
-        response = openai.ChatCompletion.create(
-            model="gpt-4o",
-            messages=messages,
-            functions=functions,
-            function_call="auto"
-        )
+        response = client.chat.completions.create(model="gpt-4o",
+        messages=messages,
+        functions=functions,
+        function_call="auto")
 
-        message = response["choices"][0]["message"]
+        message = response.choices[0].message
 
         if message.get("function_call"):
             function_name = message["function_call"]["name"]
             function_args = json.loads(message["function_call"]["arguments"])
-            
+
             function_response = globals()[function_name](**function_args)
-            
+
             messages.append({
                 "role": "function",
                 "name": function_name,
