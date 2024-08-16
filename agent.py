@@ -11,12 +11,21 @@ import json
 
 
 def split_flac_cue(folder_path):
-    """Split single FLAC file with CUE into multiple tracks using flacue.py"""
+    """Split single FLAC file with CUE into multiple tracks using flacue.py in a Docker container"""
     flac_files = list(folder_path.glob('*.flac'))
     cue_files = list(folder_path.glob('*.cue'))
     
     if len(flac_files) == 1 and len(cue_files) == 1:
-        subprocess.run(['python', 'flacue.py', str(flac_files[0]), str(cue_files[0])])
+        docker_cmd = [
+            'docker', 'run',
+            '-v', f"{folder_path}:/workdir",
+            '-e', f"PUID={os.getuid()}",
+            '-e', f"PGID={os.getgid()}",
+            '-it', 'dockerflac',
+            'bash', '-c',
+            f"cd /workdir && flacue.py '{flac_files[0].name}' '{cue_files[0].name}'"
+        ]
+        subprocess.run(docker_cmd)
     return f"Split FLAC file with CUE in {folder_path}"
 
 def convert_flac_to_mp3(folder_path):
