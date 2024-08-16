@@ -79,19 +79,19 @@ def rename_tracks(folder_path):
     logger.info("Track renaming completed")
     return f"Renamed tracks in {folder_path}"
 
-def update_metadata(folder_path):
+def update_metadata(path):
     """Update MP3 metadata using beets"""
-    logger.info(f"Updating metadata for files in {folder_path}")
+    logger.info(f"Updating metadata for files in {path}")
     beets_cmd = [
-        'beet', 'import', '-A', '--write', '-q', str(folder_path)
+        'beet', 'import', '-A', '--write', '-q', str(path)
     ]
     try:
         subprocess.run(beets_cmd, check=True, capture_output=True, text=True)
         logger.info("Metadata update completed")
-        return f"Updated metadata for files in {folder_path}"
+        return f"Updated metadata for files in {path}"
     except subprocess.CalledProcessError as e:
         logger.error(f"Error updating metadata: {e.stderr}")
-        return f"Failed to update metadata for files in {folder_path}: {e.stderr}"
+        return f"Failed to update metadata for files in {path}: {e.stderr}"
 
 def rename_album_folder(folder_path):
     """Rename the album folder to {ALBUM_NAME} - ({ALBUM_YEAR})"""
@@ -178,13 +178,13 @@ def process_album(folder_path):
         },
         {
             "name": "update_metadata",
-            "description": "Update MP3 metadata using MusicBrainz Picard",
+            "description": "Update MP3 metadata using beets",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "folder_path": {"type": "string", "description": "Path to the folder containing MP3 files"}
+                    "path": {"type": "string", "description": "Path to the folder containing MP3 files"}
                 },
-                "required": ["folder_path"]
+                "required": ["path"]
             }
         },
         {
