@@ -129,17 +129,20 @@ def get_folder_contents(folder_path):
     return f"Folder contents: {[str(item) for item in contents]}"
 
 
-def delete_file(file_path):
-    """Delete a file"""
-    logger.info(f"Deleting file: {file_path}")
-    file_path = Path(file_path)
-    if file_path.is_file():
-        file_path.unlink()
-        logger.info(f"Deleted file: {file_path}")
-        return f"Deleted file: {file_path}"
-    else:
-        logger.warning(f"File not found: {file_path}")
-        return f"File not found: {file_path}"
+def delete_files(file_paths):
+    """Delete multiple files"""
+    results = []
+    for file_path in file_paths:
+        logger.info(f"Deleting file: {file_path}")
+        file_path = Path(file_path)
+        if file_path.is_file():
+            file_path.unlink()
+            logger.info(f"Deleted file: {file_path}")
+            results.append(f"Deleted file: {file_path}")
+        else:
+            logger.warning(f"File not found: {file_path}")
+            results.append(f"File not found: {file_path}")
+    return "\n".join(results)
 
 
 def rename_folder(old_path, new_name):
@@ -250,17 +253,20 @@ def process_album(folder_path):
             },
         },
         {
-            "name": "delete_file",
-            "description": "Delete a file",
+            "name": "delete_files",
+            "description": "Delete multiple files",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "file_path": {
-                        "type": "string",
-                        "description": "Path to the file to be deleted",
+                    "file_paths": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "List of paths to the files to be deleted",
                     }
                 },
-                "required": ["file_path"],
+                "required": ["file_paths"],
             },
         },
         {
