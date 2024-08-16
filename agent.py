@@ -112,6 +112,19 @@ def delete_file(file_path):
         logger.warning(f"File not found: {file_path}")
         return f"File not found: {file_path}"
 
+def rename_folder(old_path, new_name):
+    """Rename a folder"""
+    logger.info(f"Renaming folder: {old_path} to {new_name}")
+    old_path = Path(old_path)
+    new_path = old_path.parent / new_name
+    if old_path.is_dir():
+        old_path.rename(new_path)
+        logger.info(f"Renamed folder: {old_path} to {new_path}")
+        return f"Renamed folder: {old_path} to {new_path}"
+    else:
+        logger.warning(f"Folder not found: {old_path}")
+        return f"Folder not found: {old_path}"
+
 def process_album(folder_path):
     """Process an album folder according to the defined rules using OpenAI agent"""
     folder_path = Path(folder_path).resolve()
@@ -197,11 +210,23 @@ def process_album(folder_path):
                 },
                 "required": ["file_path"]
             }
+        },
+        {
+            "name": "rename_folder",
+            "description": "Rename a folder",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "old_path": {"type": "string", "description": "Path to the folder to be renamed"},
+                    "new_name": {"type": "string", "description": "New name for the folder"}
+                },
+                "required": ["old_path", "new_name"]
+            }
         }
     ]
 
     messages = [
-        {"role": "system", "content": "You are an AI assistant that helps process music albums. Your task is to organize and process the music files in a given folder according to these specific rules:\n\n1. Single FLAC file + CUE file should be split into track files, using the `flacue.py` tool\n2. All FLAC files should be converted to MP3, using the `flac2mp3.sh` script\n3. All individual track files should be renamed to `{TRACK_NUMBER} - {TRACK_TITLE}.mp3`. Track numbers should be 2 digits and have leading `0` (e.g., `01 - Song Title.mp3`)\n4. MP3 metadata should be updated using `picard`\n5. Album folder names should follow this convention: `{ALBUM_NAME} - ({ALBUM_YEAR})`\n6. After processing, delete all FLAC files and other non-MP3 files (e.g., CUE, LOG) in the folder\n\nApply these rules in the correct order to process the album folder."},
+        {"role": "system", "content": "You are an AI assistant that helps process music albums. Your task is to organize and process the music files in a given folder according to these specific rules:\n\n1. Single FLAC file + CUE file should be split into track files, using the `flacue.py` tool\n2. All FLAC files should be converted to MP3, using the `flac2mp3.sh` script\n3. All individual track files should be renamed to `{TRACK_NUMBER} - {TRACK_TITLE}.mp3`. Track numbers should be 2 digits and have leading `0` (e.g., `01 - Song Title.mp3`)\n4. MP3 metadata should be updated using `picard`\n5. Album folder names should follow this convention: `{ALBUM_NAME} - ({ALBUM_YEAR})`. Use the rename_folder function to implement this.\n6. After processing, delete all FLAC files and other non-MP3 files (e.g., CUE, LOG) in the folder\n\nApply these rules in the correct order to process the album folder."},
         {"role": "user", "content": f"Process the album in the folder: {folder_path}. Start by checking the folder contents and then apply the necessary operations in the correct order."}
     ]
 
