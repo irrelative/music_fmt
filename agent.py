@@ -101,10 +101,10 @@ def rename_album_folder(folder_path):
     logger.info(f"Current folder name: {folder_path.name}")
     return f"Suggested renaming for folder: {folder_path}"
 
-def get_folder_contents(path):
+def get_folder_contents(folder_path):
     """Get the contents of the folder"""
-    logger.info(f"Getting contents of folder: {path}")
-    folder_path = Path(path)
+    logger.info(f"Getting contents of folder: {folder_path}")
+    folder_path = Path(folder_path)
     contents = list(folder_path.glob('*'))
     logger.info(f"Folder contents: {[str(item) for item in contents]}")
     return f"Folder contents: {[str(item) for item in contents]}"
