@@ -71,14 +71,13 @@ def rename_tracks(folder_path):
     return f"Renamed tracks in {folder_path}"
 
 def update_metadata(folder_path):
-    """Update MP3 metadata using MusicBrainz Picard in command-line mode"""
+    """Update MP3 metadata using beets"""
     logger.info(f"Updating metadata for files in {folder_path}")
-    picard_cmd = [
-        'picard', '-N', '-c', 'save_only_front_images_to_tags',
-        '--no-launcher', '--no-player', str(folder_path)
+    beets_cmd = [
+        'beet', 'import', '-A', '--write', '-q', str(folder_path)
     ]
     try:
-        subprocess.run(picard_cmd, check=True, capture_output=True, text=True)
+        subprocess.run(beets_cmd, check=True, capture_output=True, text=True)
         logger.info("Metadata update completed")
         return f"Updated metadata for files in {folder_path}"
     except subprocess.CalledProcessError as e:
