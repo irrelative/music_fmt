@@ -1,0 +1,5 @@
+directory: /workdir
+library: /workdir/musiclibrary.db
+import:
+    move: no
+plugins: fetchart lyrics
