@@ -4,16 +4,21 @@ import os
 import sys
 import subprocess
 import argparse
-import os
+import logging
 from pathlib import Path
 from openai import OpenAI
 
 client = OpenAI()
 import json
 
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 
 def split_flac_cue(folder_path):
     """Split single FLAC file with CUE into multiple tracks using flacue.py in a Docker container"""
+    logger.info(f"Splitting FLAC file with CUE in {folder_path}")
     flac_files = list(folder_path.glob('*.flac'))
     cue_files = list(folder_path.glob('*.cue'))
 
@@ -27,11 +32,16 @@ def split_flac_cue(folder_path):
             'bash', '-c',
             f"cd /workdir && flacue.py '{flac_files[0].name}' '{cue_files[0].name}'"
         ]
+        logger.info(f"Running command: {' '.join(docker_cmd)}")
         subprocess.run(docker_cmd)
+        logger.info("FLAC file split completed")
+    else:
+        logger.warning("No single FLAC + CUE pair found, skipping split operation")
     return f"Split FLAC file with CUE in {folder_path}"
 
 def convert_flac_to_mp3(folder_path):
     """Convert all FLAC files to MP3 using flac2mp3.sh in a Docker container"""
+    logger.info(f"Converting FLAC files to MP3 in {folder_path}")
     docker_cmd = [
         'docker', 'run',
         '-v', f"{folder_path}:/workdir",
@@ -41,11 +51,14 @@ def convert_flac_to_mp3(folder_path):
         'bash', '-c',
         "cd /workdir && find . -name '*.flac' -print0 | xargs -0 -n1 -P2 flac2mp3.sh"
     ]
+    logger.info(f"Running command: {' '.join(docker_cmd)}")
     subprocess.run(docker_cmd)
+    logger.info("FLAC to MP3 conversion completed")
     return f"Converted FLAC files to MP3 in {folder_path}"
 
 def rename_tracks(folder_path):
     """Rename MP3 files to the format: {TRACK_NUMBER} - {TRACK_TITLE}.mp3"""
+    logger.info(f"Renaming tracks in {folder_path}")
     folder_path = Path(folder_path)
     for mp3_file in folder_path.glob('*.mp3'):
         parts = mp3_file.stem.split(' - ', 1)
@@ -53,24 +66,31 @@ def rename_tracks(folder_path):
             track_num, title = parts
             new_name = f"{int(track_num):02d} - {title}.mp3"
             mp3_file.rename(folder_path / new_name)
+            logger.info(f"Renamed: {mp3_file.name} -> {new_name}")
+    logger.info("Track renaming completed")
     return f"Renamed tracks in {folder_path}"
 
 def update_metadata(folder_path):
     """Update MP3 metadata using MusicBrainz Picard"""
+    logger.info(f"Updating metadata for files in {folder_path}")
     subprocess.run(['picard', str(folder_path)])
+    logger.info("Metadata update completed")
     return f"Updated metadata for files in {folder_path}"
 
 def rename_album_folder(folder_path):
     """Rename the album folder to {ALBUM_NAME} - ({ALBUM_YEAR})"""
+    logger.info(f"Suggesting rename for album folder: {folder_path}")
     folder_path = Path(folder_path)
-    print(f"Album folder should be renamed to: ALBUM_NAME - (YEAR)")
-    print(f"Current folder name: {folder_path.name}")
+    logger.info(f"Album folder should be renamed to: ALBUM_NAME - (YEAR)")
+    logger.info(f"Current folder name: {folder_path.name}")
     return f"Suggested renaming for folder: {folder_path}"
 
 def get_folder_contents(path):
     """Get the contents of the folder"""
+    logger.info(f"Getting contents of folder: {path}")
     folder_path = Path(path)
     contents = list(folder_path.glob('*'))
+    logger.info(f"Folder contents: {[str(item) for item in contents]}")
     return f"Folder contents: {[str(item) for item in contents]}"
 
 def process_album(folder_path):
@@ -167,7 +187,9 @@ def process_album(folder_path):
             function_name = message.function_call.name
             function_args = json.loads(message.function_call.arguments)
 
+            logger.info(f"Calling function: {function_name} with args: {function_args}")
             function_response = globals()[function_name](**function_args)
+            logger.info(f"Function response: {function_response}")
 
             messages.append({
                 "role": "function",
@@ -175,10 +197,10 @@ def process_album(folder_path):
                 "content": function_response
             })
         else:
-            print(message.content)
+            logger.info(f"AI response: {message.content}")
             break
 
-    print("Album processing completed.")
+    logger.info("Album processing completed.")
 
 def main():
     parser = argparse.ArgumentParser(description="Process a music album folder")
