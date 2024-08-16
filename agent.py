@@ -10,6 +10,8 @@ from openai import OpenAI
 
 client = OpenAI()
 import json
+from mutagen.mp3 import MP3
+from mutagen.easyid3 import EasyID3
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -57,16 +59,23 @@ def convert_flac_to_mp3(folder_path):
     return f"Converted FLAC files to MP3 in {folder_path}"
 
 def rename_tracks(folder_path):
-    """Rename MP3 files to the format: {TRACK_NUMBER} - {TRACK_TITLE}.mp3"""
+    """Rename MP3 files to the format: {TRACK_NUMBER} - {TRACK_TITLE}.mp3 using metadata"""
     logger.info(f"Renaming tracks in {folder_path}")
     folder_path = Path(folder_path)
     for mp3_file in folder_path.glob('*.mp3'):
-        parts = mp3_file.stem.split(' - ', 1)
-        if len(parts) == 2:
-            track_num, title = parts
-            new_name = f"{int(track_num):02d} - {title}.mp3"
-            mp3_file.rename(folder_path / new_name)
-            logger.info(f"Renamed: {mp3_file.name} -> {new_name}")
+        try:
+            audio = EasyID3(mp3_file)
+            track_num = audio.get('tracknumber', [''])[0].split('/')[0].zfill(2)
+            title = audio.get('title', [''])[0]
+            if track_num and title:
+                new_name = f"{track_num} - {title}.mp3"
+                new_path = folder_path / new_name
+                mp3_file.rename(new_path)
+                logger.info(f"Renamed: {mp3_file.name} -> {new_name}")
+            else:
+                logger.warning(f"Skipped renaming {mp3_file.name}: Missing track number or title in metadata")
+        except Exception as e:
+            logger.error(f"Error renaming {mp3_file.name}: {str(e)}")
     logger.info("Track renaming completed")
     return f"Renamed tracks in {folder_path}"
 
@@ -226,7 +235,7 @@ def process_album(folder_path):
     ]
 
     messages = [
-        {"role": "system", "content": "You are an AI assistant that helps process music albums. Your task is to organize and process the music files in a given folder according to these specific rules:\n\n1. Single FLAC file + CUE file should be split into track files, using the `flacue.py` tool\n2. All FLAC files should be converted to MP3, using the `flac2mp3.sh` script\n3. All individual track files should be renamed to `{TRACK_NUMBER} - {TRACK_TITLE}.mp3`. Track numbers should be 2 digits and have leading `0` (e.g., `01 - Song Title.mp3`)\n4. MP3 metadata should be updated using `picard`\n5. Album folder names should follow this convention: `{ALBUM_NAME} - ({ALBUM_YEAR})`. Use the rename_folder function to implement this.\n6. After processing, delete all FLAC files and other non-MP3 files (e.g., CUE, LOG) in the folder\n\nApply these rules in the correct order to process the album folder."},
+        {"role": "system", "content": "You are an AI assistant that helps process music albums. Your task is to organize and process the music files in a given folder according to these specific rules:\n\n1. Single FLAC file + CUE file should be split into track files, using the `flacue.py` tool\n2. All FLAC files should be converted to MP3, using the `flac2mp3.sh` script\n3. MP3 metadata should be updated using `picard`\n4. All individual track files should be renamed to `{TRACK_NUMBER} - {TRACK_TITLE}.mp3` using the metadata. Track numbers should be 2 digits and have leading `0` (e.g., `01 - Song Title.mp3`)\n5. Album folder names should follow this convention: `{ALBUM_NAME} - ({ALBUM_YEAR})`. Use the rename_folder function to implement this.\n6. After processing, delete all FLAC files and other non-MP3 files (e.g., CUE, LOG) in the folder\n\nApply these rules in the correct order to process the album folder."},
         {"role": "user", "content": f"Process the album in the folder: {folder_path}. Start by checking the folder contents and then apply the necessary operations in the correct order."}
     ]
 
