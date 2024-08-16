@@ -12,9 +12,6 @@ import:
 plugins: fetchart lyrics
 EOF
 
-# Install beets and its plugins
-pip install beets[fetchart,lyrics]
-
 # Fetch MusicBrainz data
 beet mb submenu update
 
