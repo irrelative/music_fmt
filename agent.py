@@ -4,6 +4,7 @@ import os
 import sys
 import subprocess
 import argparse
+import os
 from pathlib import Path
 import openai
 import json
@@ -19,8 +20,17 @@ def split_flac_cue(folder_path):
     return f"Split FLAC file with CUE in {folder_path}"
 
 def convert_flac_to_mp3(folder_path):
-    """Convert all FLAC files to MP3 using flac2mp3.sh"""
-    subprocess.run(['bash', 'flac2mp3.sh', str(folder_path)])
+    """Convert all FLAC files to MP3 using flac2mp3.sh in a Docker container"""
+    docker_cmd = [
+        'docker', 'run',
+        '-v', f"{folder_path}:/workdir",
+        '-e', f"PUID={os.getuid()}",
+        '-e', f"PGID={os.getgid()}",
+        '-it', 'dockerflac',
+        'bash', '-c',
+        "cd /workdir && find . -name '*.flac' -print0 | xargs -0 -n1 -P2 flac2mp3.sh"
+    ]
+    subprocess.run(docker_cmd)
     return f"Converted FLAC files to MP3 in {folder_path}"
 
 def rename_tracks(folder_path):
