@@ -62,6 +62,7 @@ def update_metadata(folder_path):
 
 def rename_album_folder(folder_path):
     """Rename the album folder to {ALBUM_NAME} - ({ALBUM_YEAR})"""
+    folder_path = Path(folder_path)
     print(f"Album folder should be renamed to: ALBUM_NAME - (YEAR)")
     print(f"Current folder name: {folder_path.name}")
     return f"Suggested renaming for folder: {folder_path}"
