@@ -160,9 +160,9 @@ def process_album(folder_path):
 
         message = response.choices[0].message
 
-        if message.get("function_call"):
-            function_name = message["function_call"]["name"]
-            function_args = json.loads(message["function_call"]["arguments"])
+        if message.function_call:
+            function_name = message.function_call.name
+            function_args = json.loads(message.function_call.arguments)
 
             function_response = globals()[function_name](**function_args)
 
@@ -172,7 +172,7 @@ def process_album(folder_path):
                 "content": function_response
             })
         else:
-            print(message["content"])
+            print(message.content)
             break
 
     print("Album processing completed.")
