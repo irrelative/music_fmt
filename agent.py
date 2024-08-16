@@ -71,11 +71,19 @@ def rename_tracks(folder_path):
     return f"Renamed tracks in {folder_path}"
 
 def update_metadata(folder_path):
-    """Update MP3 metadata using MusicBrainz Picard"""
+    """Update MP3 metadata using MusicBrainz Picard in command-line mode"""
     logger.info(f"Updating metadata for files in {folder_path}")
-    subprocess.run(['picard', str(folder_path)])
-    logger.info("Metadata update completed")
-    return f"Updated metadata for files in {folder_path}"
+    picard_cmd = [
+        'picard', '-N', '-c', 'save_only_front_images_to_tags',
+        '--no-launcher', '--no-player', str(folder_path)
+    ]
+    try:
+        subprocess.run(picard_cmd, check=True, capture_output=True, text=True)
+        logger.info("Metadata update completed")
+        return f"Updated metadata for files in {folder_path}"
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Error updating metadata: {e.stderr}")
+        return f"Failed to update metadata for files in {folder_path}: {e.stderr}"
 
 def rename_album_folder(folder_path):
     """Rename the album folder to {ALBUM_NAME} - ({ALBUM_YEAR})"""
