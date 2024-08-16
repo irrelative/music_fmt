@@ -249,6 +249,8 @@ def process_album(folder_path):
 
         if message.function_call:
             function_name = message.function_call.name
+            # Remove 'functions::' prefix if present
+            function_name = function_name.split('::')[-1]
             function_args = json.loads(message.function_call.arguments)
 
             logger.info(f"Calling function: {function_name} with args: {function_args}")
