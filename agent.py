@@ -112,16 +112,14 @@ def update_metadata(path):
         f"PGID={os.getgid()}",
         "-it",
         "dockerflac",
-        "beet",
-        "import",
-        "-A",
-        "--write",
-        "-q",
-        "/workdir",
+        "bash",
+        "-c",
+        "cd /workdir && beet import -A --write -q ."
     ]
     try:
-        subprocess.run(docker_cmd, check=True, capture_output=True, text=True)
+        result = subprocess.run(docker_cmd, check=True, capture_output=True, text=True)
         logger.info("Metadata update completed")
+        logger.debug(f"Beet output: {result.stdout}")
         return f"Updated metadata for files in {path}"
     except subprocess.CalledProcessError as e:
         logger.error(f"Error updating metadata: {e.stderr}")
