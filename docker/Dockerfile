@@ -1,5 +1,5 @@
-#Download base image ubuntu 22.04
-FROM ubuntu:22.04
+#Download base image ubuntu 24.04
+FROM ubuntu:24.04
 
 RUN apt-get update && apt-get install -y \
     cuetools \
@@ -19,7 +19,7 @@ RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Install beets in the virtual environment
-RUN pip install beets
+RUN pip install beets requests
 
 # Set up beets configuration
 RUN mkdir -p /root/.config/beets
