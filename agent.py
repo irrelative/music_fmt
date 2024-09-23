@@ -95,7 +95,7 @@ def rename_tracks(folder_path):
 
 
 def update_metadata(path):
-    """Update MP3 metadata using beets in Docker"""
+    """Update MP3 metadata using Picard in Docker"""
     logger.info(f"Updating metadata for files in {path}")
     docker_cmd = [
         "docker",
@@ -106,14 +106,13 @@ def update_metadata(path):
         f"{os.getuid()}:{os.getgid()}",
         "-it",
         "dockerflac",
-        "bash",
-        "-c",
-        "cd /workdir && beet import -A --write -q ."
+        "picard",
+        "/workdir"
     ]
     try:
         result = subprocess.run(docker_cmd, check=True, capture_output=True, text=True)
         logger.info("Metadata update completed")
-        logger.debug(f"Beet output: {result.stdout}")
+        logger.debug(f"Picard output: {result.stdout}")
         return f"Updated metadata for files in {path}"
     except subprocess.CalledProcessError as e:
         logger.error(f"Error updating metadata: {e.stderr}")
