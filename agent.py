@@ -40,7 +40,7 @@ def split_flac_cue(folder_path: Union[str, Path]) -> str:
             "dockerflac",
             "bash",
             "-c",
-            f"cd /workdir && ./flacue.py \"{flac_files[0].name}\" \"{cue_files[0].name}\"",
+            f"cd /workdir && flacue.py \"{flac_files[0].name}\" \"{cue_files[0].name}\"",
         ]
         logger.info(f"Running command: {' '.join(docker_cmd)}")
         subprocess.run(docker_cmd)
