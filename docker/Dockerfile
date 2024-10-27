@@ -27,6 +27,7 @@ COPY beets_config.yaml /root/.config/beets/config.yaml
 
 COPY flac2mp3.sh /usr/local/bin/flac2mp3.sh
 COPY flacue.py /usr/local/bin/flacue.py
+RUN chmod +x /usr/local/bin/flacue.py
 
 # Set up environment variables
 ENV PATH="/usr/local/bin:$PATH"
