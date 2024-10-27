@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 
 def split_flac_cue(folder_path: Union[str, Path]) -> str:
     """Split single FLAC file with CUE into multiple tracks using flacue.py in a Docker container"""
+    folder_path = Path(folder_path)
     logger.info(f"Splitting FLAC file with CUE in {folder_path}")
     flac_files = list(folder_path.glob("*.flac"))
     cue_files = list(folder_path.glob("*.cue"))
@@ -51,6 +52,7 @@ def split_flac_cue(folder_path: Union[str, Path]) -> str:
 
 def convert_flac_to_mp3(folder_path: Union[str, Path]) -> str:
     """Convert all FLAC files to MP3 using flac2mp3.sh in a Docker container"""
+    folder_path = Path(folder_path)
     logger.info(f"Converting FLAC files to MP3 in {folder_path}")
     docker_cmd = [
         "docker",
@@ -73,8 +75,8 @@ def convert_flac_to_mp3(folder_path: Union[str, Path]) -> str:
 
 def rename_tracks(folder_path: Union[str, Path]) -> str:
     """Rename MP3 files to the format: {TRACK_NUMBER} - {TRACK_TITLE}.mp3 using metadata"""
-    logger.info(f"Renaming tracks in {folder_path}")
     folder_path = Path(folder_path)
+    logger.info(f"Renaming tracks in {folder_path}")
     for mp3_file in folder_path.glob("*.mp3"):
         try:
             audio = EasyID3(mp3_file)
@@ -97,6 +99,7 @@ def rename_tracks(folder_path: Union[str, Path]) -> str:
 
 def update_metadata(path: Union[str, Path]) -> str:
     """Update MP3 metadata using Picard in Docker"""
+    path = Path(path)
     logger.info(f"Updating metadata for files in {path}")
     docker_cmd = [
         "docker",
@@ -123,8 +126,8 @@ def update_metadata(path: Union[str, Path]) -> str:
 
 def rename_album_folder(folder_path: Union[str, Path]) -> str:
     """Rename the album folder to {ALBUM_NAME} - ({ALBUM_YEAR})"""
-    logger.info(f"Suggesting rename for album folder: {folder_path}")
     folder_path = Path(folder_path)
+    logger.info(f"Suggesting rename for album folder: {folder_path}")
     logger.info(f"Album folder should be renamed to: ALBUM_NAME - (YEAR)")
     logger.info(f"Current folder name: {folder_path.name}")
     return f"Suggested renaming for folder: {folder_path}"
@@ -132,8 +135,8 @@ def rename_album_folder(folder_path: Union[str, Path]) -> str:
 
 def get_folder_contents(folder_path: Union[str, Path]) -> str:
     """Get the contents of the folder"""
-    logger.info(f"Getting contents of folder: {folder_path}")
     folder_path = Path(folder_path)
+    logger.info(f"Getting contents of folder: {folder_path}")
     contents = list(folder_path.glob("*"))
     logger.info(f"Folder contents: {[str(item) for item in contents]}")
     return f"Folder contents: {[str(item) for item in contents]}"
