@@ -6,6 +6,7 @@ import subprocess
 import argparse
 import logging
 from pathlib import Path
+from typing import List, Union, Optional
 from openai import OpenAI
 
 client = OpenAI()
@@ -20,7 +21,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def split_flac_cue(folder_path):
+def split_flac_cue(folder_path: Union[str, Path]) -> str:
     """Split single FLAC file with CUE into multiple tracks using flacue.py in a Docker container"""
     logger.info(f"Splitting FLAC file with CUE in {folder_path}")
     flac_files = list(folder_path.glob("*.flac"))
@@ -48,7 +49,7 @@ def split_flac_cue(folder_path):
     return f"Split FLAC file with CUE in {folder_path}"
 
 
-def convert_flac_to_mp3(folder_path):
+def convert_flac_to_mp3(folder_path: Union[str, Path]) -> str:
     """Convert all FLAC files to MP3 using flac2mp3.sh in a Docker container"""
     logger.info(f"Converting FLAC files to MP3 in {folder_path}")
     docker_cmd = [
@@ -70,7 +71,7 @@ def convert_flac_to_mp3(folder_path):
     return f"Converted FLAC files to MP3 in {folder_path}"
 
 
-def rename_tracks(folder_path):
+def rename_tracks(folder_path: Union[str, Path]) -> str:
     """Rename MP3 files to the format: {TRACK_NUMBER} - {TRACK_TITLE}.mp3 using metadata"""
     logger.info(f"Renaming tracks in {folder_path}")
     folder_path = Path(folder_path)
@@ -94,8 +95,8 @@ def rename_tracks(folder_path):
     return f"Renamed tracks in {folder_path}"
 
 
-def update_metadata(path):
-    """Update MP3 metadata using beets in Docker"""
+def update_metadata(path: Union[str, Path]) -> str:
+    """Update MP3 metadata using Picard in Docker"""
     logger.info(f"Updating metadata for files in {path}")
     docker_cmd = [
         "docker",
@@ -120,7 +121,7 @@ def update_metadata(path):
         return f"Failed to update metadata for files in {path}: {e.stderr}"
 
 
-def rename_album_folder(folder_path):
+def rename_album_folder(folder_path: Union[str, Path]) -> str:
     """Rename the album folder to {ALBUM_NAME} - ({ALBUM_YEAR})"""
     logger.info(f"Suggesting rename for album folder: {folder_path}")
     folder_path = Path(folder_path)
@@ -129,7 +130,7 @@ def rename_album_folder(folder_path):
     return f"Suggested renaming for folder: {folder_path}"
 
 
-def get_folder_contents(folder_path):
+def get_folder_contents(folder_path: Union[str, Path]) -> str:
     """Get the contents of the folder"""
     logger.info(f"Getting contents of folder: {folder_path}")
     folder_path = Path(folder_path)
@@ -138,7 +139,7 @@ def get_folder_contents(folder_path):
     return f"Folder contents: {[str(item) for item in contents]}"
 
 
-def delete_files(file_paths):
+def delete_files(file_paths: List[Union[str, Path]]) -> str:
     """Delete multiple files"""
     results = []
     for file_path in file_paths:
@@ -154,7 +155,7 @@ def delete_files(file_paths):
     return "\n".join(results)
 
 
-def rename_folder(old_path, new_name):
+def rename_folder(old_path: Union[str, Path], new_name: str) -> str:
     """Rename a folder"""
     logger.info(f"Renaming folder: {old_path} to {new_name}")
     old_path = Path(old_path)
@@ -168,7 +169,7 @@ def rename_folder(old_path, new_name):
         return f"Folder not found: {old_path}"
 
 
-def process_album(folder_path):
+def process_album(folder_path: Union[str, Path]) -> None:
     """Process an album folder according to the defined rules using OpenAI agent"""
     folder_path = Path(folder_path).resolve()
 
@@ -340,7 +341,7 @@ def process_album(folder_path):
     logger.info("Album processing completed.")
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="Process a music album folder")
     parser.add_argument("folder_path", help="Path to the album folder")
     args = parser.parse_args()
