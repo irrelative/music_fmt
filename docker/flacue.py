@@ -15,7 +15,8 @@ def main(flac_file, cue_file):
     cmd_args = ['shnsplit', '-f', cue_file, '-t', '%n - %t', '-o', 'flac', flac_file]
     print(' '.join(cmd_args))
     try:
-        ret = subprocess.run(cmd_args, cwd=root, check=True, capture_output=True)
+        env = os.environ.copy()  # Copy current environment
+        ret = subprocess.run(cmd_args, cwd=root, check=True, capture_output=True, env=env)
     except Exception as ex:
         print(f'Error: {root}')
         print(ex)
