@@ -12,10 +12,10 @@ def get_files(f_names, ext):
 def main(flac_file, cue_file):
     root = os.path.dirname(flac_file)
     print(f'\nConverting: {root}')
-    cmd = f'shnsplit -f "{cue_file}" -t "%n - %t.flac" -o flac "{flac_file}"'
-    print(f'Running: {cmd}')
+    cmd_args = ['shnsplit', '-f', cue_file, '-t', '%n - %t', '-o', 'flac', flac_file]
+    print(' '.join(cmd_args))
     try:
-        ret = subprocess.run(cmd, cwd=root, shell=True, check=True, capture_output=True)
+        ret = subprocess.run(cmd_args, cwd=root, check=True, capture_output=True)
     except Exception as ex:
         print(f'Error: {root}')
         print(ex)
