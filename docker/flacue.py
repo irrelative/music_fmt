@@ -4,13 +4,11 @@ import os
 import subprocess
 import argparse
 
-
 def get_files(f_names, ext):
     return [f for f in f_names if f.endswith(ext)]
 
-
 def main(flac_file, cue_file):
-    root = os.path.dirname(flac_file)
+    root = os.path.dirname(os.path.abspath(flac_file))
     print(f'\nConverting: {root}')
     cmd_args = ['shnsplit', '-f', cue_file, '-t', '%n - %t', '-o', 'flac', flac_file]
     print(' '.join(cmd_args))
@@ -24,7 +22,6 @@ def main(flac_file, cue_file):
         print(f'Converted {root}')
         os.remove(flac_file)
         os.remove(cue_file)
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Split FLAC file using CUE sheet')
