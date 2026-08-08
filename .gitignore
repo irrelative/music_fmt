@@ -1,4 +1,5 @@
-.aider*
-
-venv/
+.DS_Store
+._*
+.music-organizer/
 .env
+.aider*
