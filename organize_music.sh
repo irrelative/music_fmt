@@ -194,6 +194,12 @@ per_disc_numbering: yes
 asciify_paths: no
 art_filename: cover
 
+# The default beets threshold prompts below roughly 96% confidence. Album-sized
+# libraries commonly lose a few points only because their old tags lack a data
+# source, so accept matches at 90% or better and keep prompting below that.
+match:
+  strong_rec_thresh: 0.10
+
 paths:
   'comp:true disctotal:2..': 'Compilations/$album%if{$year, ($year), (Unknown Year)}%aunique{}/CD $disc/$track - $artist - $title'
   comp: 'Compilations/$album%if{$year, ($year), (Unknown Year)}%aunique{}/$track - $artist - $title'
