@@ -75,7 +75,7 @@ Apply mode writes accepted metadata and moves files in place. It also:
 - reports corrupt files and duplicate albums without deleting duplicates;
 - removes `.DS_Store`, AppleDouble `._*` files, and empty source directories;
 - records its catalog, resume state, configuration, full change transcripts,
-  and skipped/unmatched logs under
+  before/after path inventories, and skipped/unmatched logs under
   `<library-root>/.music-organizer/`.
 
 Keep a backup until the resulting library has been reviewed.

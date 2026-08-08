@@ -114,7 +114,7 @@ case "$TARGET/" in
         ;;
 esac
 
-for command_name in beet fpcalc ffprobe flac mp3val realpath; do
+for command_name in beet diff fpcalc ffprobe flac mp3val realpath tee; do
     command -v "$command_name" >/dev/null 2>&1 ||
         die "required command is not installed: $command_name"
 done
@@ -251,8 +251,13 @@ if ((APPLY)); then
     STATE_PATH="$STATE_DIR/import-state.pickle"
     LOG_PATH="$STATE_DIR/logs/import-$RUN_STAMP.log"
     CHANGE_LOG_PATH="$STATE_DIR/logs/changes-$RUN_STAMP.log"
+    BEFORE_PATHS="$STATE_DIR/logs/paths-before-$RUN_STAMP.txt"
+    AFTER_PATHS="$STATE_DIR/logs/paths-after-$RUN_STAMP.txt"
 
     write_config "$CONFIG_PATH" "$DATABASE_PATH" "$STATE_PATH" "$LOG_PATH" yes yes yes
+
+    find "$LIBRARY_ROOT" \
+        -path "$STATE_DIR" -prune -o -type f -print | LC_ALL=C sort >"$BEFORE_PATHS"
 
     # Keep an audit transcript of metadata decisions, file moves, sidecar moves,
     # cleanup deletions, duplicate reports, and errors while retaining the live UI.
@@ -263,7 +268,7 @@ if ((APPLY)); then
     printf 'Skipped/unmatched log:\n  %s\n\n' "$LOG_PATH"
 
     set +e
-    run_beet --verbose "${IMPORT_ARGS[@]}" --move --write --incremental "$TARGET"
+    run_beet "${IMPORT_ARGS[@]}" --move --write --incremental "$TARGET"
     IMPORT_STATUS=$?
     set -e
 
@@ -302,6 +307,12 @@ if ((APPLY)); then
             ! -iname '*.ffp' ! -iname '*.sfv' ! -iname '*.accurip' \
             ! -name "$PROGRAM_NAME" -print
     fi
+
+    find "$LIBRARY_ROOT" \
+        -path "$STATE_DIR" -prune -o -type f -print | LC_ALL=C sort >"$AFTER_PATHS"
+
+    printf '\nFile path changes (`-` before, `+` after):\n'
+    diff -u "$BEFORE_PATHS" "$AFTER_PATHS" || true
 
     printf '\nApply completed. Full change transcript:\n  %s\n' "$CHANGE_LOG_PATH"
     printf 'Review skipped or unmatched releases in:\n  %s\n' "$LOG_PATH"
