@@ -250,14 +250,20 @@ if ((APPLY)); then
     DATABASE_PATH="$STATE_DIR/library.db"
     STATE_PATH="$STATE_DIR/import-state.pickle"
     LOG_PATH="$STATE_DIR/logs/import-$RUN_STAMP.log"
+    CHANGE_LOG_PATH="$STATE_DIR/logs/changes-$RUN_STAMP.log"
 
     write_config "$CONFIG_PATH" "$DATABASE_PATH" "$STATE_PATH" "$LOG_PATH" yes yes yes
 
+    # Keep an audit transcript of metadata decisions, file moves, sidecar moves,
+    # cleanup deletions, duplicate reports, and errors while retaining the live UI.
+    exec > >(tee -a "$CHANGE_LOG_PATH") 2>&1
+
     printf 'Applying MusicBrainz metadata and organizing:\n  %s\n\n' "$TARGET"
-    printf 'Run log:\n  %s\n\n' "$LOG_PATH"
+    printf 'Change transcript:\n  %s\n\n' "$CHANGE_LOG_PATH"
+    printf 'Skipped/unmatched log:\n  %s\n\n' "$LOG_PATH"
 
     set +e
-    run_beet "${IMPORT_ARGS[@]}" --move --write --incremental "$TARGET"
+    run_beet --verbose "${IMPORT_ARGS[@]}" --move --write --incremental "$TARGET"
     IMPORT_STATUS=$?
     set -e
 
@@ -297,8 +303,8 @@ if ((APPLY)); then
             ! -name "$PROGRAM_NAME" -print
     fi
 
-    printf '\nApply completed. Review skipped or unmatched releases in:\n  %s\n' \
-        "$LOG_PATH"
+    printf '\nApply completed. Full change transcript:\n  %s\n' "$CHANGE_LOG_PATH"
+    printf 'Review skipped or unmatched releases in:\n  %s\n' "$LOG_PATH"
 else
     TEMP_STATE=$(mktemp -d "${TMPDIR:-/tmp}/music-organizer-preview.XXXXXX")
     STATE_DIR=$TEMP_STATE

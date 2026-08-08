@@ -74,7 +74,8 @@ Apply mode writes accepted metadata and moves files in place. It also:
 - carries CUE sheets, logs, artwork, checksums, PDFs, and playlists;
 - reports corrupt files and duplicate albums without deleting duplicates;
 - removes `.DS_Store`, AppleDouble `._*` files, and empty source directories;
-- records its catalog, resume state, configuration, and logs under
+- records its catalog, resume state, configuration, full change transcripts,
+  and skipped/unmatched logs under
   `<library-root>/.music-organizer/`.
 
 Keep a backup until the resulting library has been reviewed.
@@ -108,4 +109,3 @@ You can set `MUSIC_LIBRARY_ROOT` instead of passing `--library-root` repeatedly:
 export MUSIC_LIBRARY_ROOT="/Volumes/external/Music/Downloaded"
 ./organize_music.sh --review-all "$MUSIC_LIBRARY_ROOT/Wet Leg/Moisturizer (2025)"
 ```
-
